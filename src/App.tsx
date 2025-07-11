@@ -1,16 +1,16 @@
 import React from "react";
-import Card from "./components/Card/index.tsx";
+import Card from "./components/Card/index";
+import NoteForm from "./components/NoteForm/index";
 function App() {
   return (
     <div>
-      <h1>
-        <Card
-          title={"Title"}
-          children={
-            <p>Clique ou arraste o arquivo para esta área para fazer upload</p>
-          }
-        />
-      </h1>
+      <NoteForm />
+      <Card
+        title={"Title"}
+        children={
+          <p>Clique ou arraste o arquivo para esta área para fazer upload</p>
+        }
+      />
     </div>
   );
 }
