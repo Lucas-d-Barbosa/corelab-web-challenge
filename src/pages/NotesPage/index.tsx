@@ -4,6 +4,7 @@ import { INote } from "../../types/notes.type";
 import styles from "./NotesPage.module.scss";
 import { useState, useEffect } from "react";
 import api from "../../services/api";
+import { notificationService } from "../../services/NotificationService";
 
 function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,9 +44,9 @@ function NotesPage() {
           return note;
         })
       );
+      notificationService.sucesso("Nota atualizada com sucesso!");
     } catch (error) {
-      console.error("Erro ao atualizar a nota:", error);
-      alert("Não foi possível atualizar a nota.");
+      notificationService.erro("Nota foi possível atualizar a nota.");
     }
   };
 
@@ -60,8 +61,9 @@ function NotesPage() {
       const newNoteFromApi = response.data;
 
       setNotes((currentNotes) => [newNoteFromApi, ...currentNotes]);
+      notificationService.sucesso("Nota criada com sucesso!");
     } catch (error) {
-      alert("Não foi possível criar a nota. Tente novamente.");
+      notificationService.erro("Não foi possível criar a nota.");
     }
   };
   const handleNoteDelete = async (noteIdToDelete: number) => {
@@ -71,8 +73,9 @@ function NotesPage() {
       setNotes((currentNotes) =>
         currentNotes.filter((note) => note.id !== noteIdToDelete)
       );
+      notificationService.sucesso("Nota deletada com sucesso!");
     } catch (error) {
-      alert("Não foi possível deletar a nota.");
+      notificationService.erro("Não foi possível deletar a nota.");
     }
   };
   return (
