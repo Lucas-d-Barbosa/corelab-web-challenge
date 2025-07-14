@@ -6,9 +6,16 @@ import { useState, useEffect } from "react";
 import api from "../../services/api";
 
 function NotesPage() {
+  const [searchTerm, setSearchTerm] = useState("");
   const [notes, setNotes] = useState<INote[]>([]);
-  const favoriteNotes = notes.filter((note) => note.isFavorite);
-  const otherNotes = notes.filter((note) => !note.isFavorite);
+  const filteredNotes = notes.filter((note) => {
+    const title = note.title.toLowerCase();
+    const content = note.content ? note.content.toLowerCase() : "";
+    const search = searchTerm.toLowerCase();
+    return title.includes(search) || content.includes(search);
+  });
+  const favoriteNotes = filteredNotes.filter((note) => note.isFavorite);
+  const otherNotes = filteredNotes.filter((note) => !note.isFavorite);
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -78,10 +85,8 @@ function NotesPage() {
         <div className={styles.search}>
           <Search
             placeholder={"Pesquisar notas"}
-            value={""}
-            onChange={function (): void {
-              throw new Error("Function not implemented.");
-            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </header>
