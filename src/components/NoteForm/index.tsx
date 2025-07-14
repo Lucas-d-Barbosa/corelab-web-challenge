@@ -1,86 +1,79 @@
 import { FaRegStar, FaStar } from "react-icons/fa";
 import styles from "./NoteForm.module.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-function NoteForm() {
+interface INoteFormProps {
+  onNoteAdd: (noteData: {
+    title: string;
+    content: string;
+    isFavorite: boolean;
+  }) => void;
+}
+
+function NoteForm({ onNoteAdd }: INoteFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingContent, setIsEditingContent] = useState(false);
-  const [titleWasEdited, setTitleWasEdited] = useState(false);
-  const [contentWasEdited, setContentWasEdited] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const createNote = () => {
-    const cleanTitle = title.trim();
-    const cleanContent = content.trim();
+  const handleCreateNote = () => {
+    if (title.trim() === "" && content.trim() === "") {
+      return;
+    }
 
-    if (!cleanTitle || !cleanContent) return;
-
-    const note = {
-      title: cleanTitle,
-      content: cleanContent,
-      favorite: isFavorite,
-      createdAt: new Date().toISOString(),
-    };
-
-    console.log("Nota criada:", note);
+    onNoteAdd({
+      title: title.trim(),
+      content: content.trim(),
+      isFavorite: isFavorite,
+    });
 
     setTitle("");
     setContent("");
     setIsFavorite(false);
-    setTitleWasEdited(false);
-    setContentWasEdited(false);
   };
 
   useEffect(() => {
-    const finishedEditing = !isEditingTitle && !isEditingContent;
-    const hasBeenEdited = titleWasEdited || contentWasEdited;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        handleCreateNote();
+      }
+    };
 
-    if (finishedEditing && hasBeenEdited) {
-      createNote();
-    }
-  }, [isEditingTitle, isEditingContent, titleWasEdited, contentWasEdited]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [title, content, isFavorite, onNoteAdd]);
 
   return (
-    <div className={styles.NoteForm}>
+    <form className={styles.NoteForm} ref={formRef}>
       <div className={styles.NoteForm__titleArea}>
-        {isEditingTitle ? (
-          <input
-            type="text"
-            value={title}
-            placeholder="Título"
-            onChange={(e) => {
-              setTitle(e.target.value);
-              setTitleWasEdited(true);
-            }}
-            onBlur={() => setIsEditingTitle(false)}
-            autoFocus
-          />
-        ) : (
-          <h2 onClick={() => setIsEditingTitle(true)}>{title || "Título"}</h2>
-        )}
-        <button onClick={() => setIsFavorite(!isFavorite)}>
-          {isFavorite ? <FaStar size={22} /> : <FaRegStar size={22} />}
+        <input
+          type="text"
+          placeholder="Título"
+          className={styles.titleInput}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <button type="button" onClick={() => setIsFavorite(!isFavorite)}>
+          {isFavorite ? (
+            <FaStar size={22} style={{ color: "#FFA000" }} />
+          ) : (
+            <FaRegStar size={22} />
+          )}
         </button>
       </div>
-      <div
-        className={styles.NoteForm__content}
-        onClick={() => setIsEditingContent(true)}
-      >
+      <div className={styles.NoteForm__content}>
+        {" "}
         <textarea
-          value={content}
           placeholder="Criar nota..."
-          onChange={(e) => {
-            setContent(e.target.value);
-            setContentWasEdited(true);
-          }}
-          onBlur={() => setIsEditingContent(false)}
-          autoFocus
+          className={styles.contentInput}
+          rows={3}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
         />
       </div>
-    </div>
+    </form>
   );
 }
 

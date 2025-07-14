@@ -12,6 +12,9 @@
     background-color: #fff;
     padding: 0.5rem 2rem;
     box-shadow: 0.1rem 0.2rem 0.7rem #0000003d;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 
     .logoArea {
       height: 2.25rem;
@@ -26,6 +29,11 @@
         font-weight: 400;
         font-size: 0.875rem;
       }
+    }
+
+    .search {
+      width: 60%;
+      max-width: 33.125rem;
     }
   }
 
