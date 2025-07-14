@@ -1,44 +1,72 @@
 import { Card, Search } from "../../components";
 import NoteForm from "../../components/NoteForm";
-import { initialNotes } from "../../data/mockNotes";
 import { INote } from "../../types/notes.type";
 import styles from "./NotesPage.module.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "../../services/api";
 
 function NotesPage() {
-  const [notes, setNotes] = useState<INote[]>(initialNotes);
+  const [notes, setNotes] = useState<INote[]>([]);
   const favoriteNotes = notes.filter((note) => note.isFavorite);
   const otherNotes = notes.filter((note) => !note.isFavorite);
-  const handleNoteUpdate = (noteId: number, updatedData: Partial<INote>) => {
-    setNotes((currentNotes) =>
-      currentNotes.map((note) => {
-        if (note.id === noteId) {
-          return { ...note, ...updatedData };
-        }
-        return note;
-      })
-    );
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await api.get("/notes");
+        setNotes(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar notas:", error);
+      }
+    };
+
+    fetchNotes();
+  }, []);
+  const handleNoteUpdate = async (
+    noteId: number,
+    updatedData: Partial<INote>
+  ) => {
+    try {
+      await api.patch(`/notes/${noteId}`, updatedData);
+
+      setNotes((currentNotes) =>
+        currentNotes.map((note) => {
+          if (note.id === noteId) {
+            return { ...note, ...updatedData };
+          }
+          return note;
+        })
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar a nota:", error);
+      alert("Não foi possível atualizar a nota.");
+    }
   };
-  const handleNoteAdd = (noteData: {
+
+  const handleNoteAdd = async (noteData: {
     title: string;
     content: string;
     isFavorite: boolean;
   }) => {
-    const newNote: INote = {
-      id: Date.now(),
-      title: noteData.title,
-      content: noteData.content,
-      isFavorite: noteData.isFavorite,
-      color: "#FFFFFF",
-    };
+    try {
+      const response = await api.post("/notes", noteData);
 
-    setNotes((currentNotes) => [newNote, ...currentNotes]);
+      const newNoteFromApi = response.data;
+
+      setNotes((currentNotes) => [newNoteFromApi, ...currentNotes]);
+    } catch (error) {
+      alert("Não foi possível criar a nota. Tente novamente.");
+    }
   };
-  const handleNoteDelete = (noteIdToDelete: number) => {
-    setNotes((currentNotes) =>
-      currentNotes.filter((note) => note.id !== noteIdToDelete)
-    );
-    console.log(`Nota com ID ${noteIdToDelete} deletada.`);
+  const handleNoteDelete = async (noteIdToDelete: number) => {
+    try {
+      await api.delete(`/notes/${noteIdToDelete}`);
+
+      setNotes((currentNotes) =>
+        currentNotes.filter((note) => note.id !== noteIdToDelete)
+      );
+    } catch (error) {
+      alert("Não foi possível deletar a nota.");
+    }
   };
   return (
     <div className={styles.container}>
