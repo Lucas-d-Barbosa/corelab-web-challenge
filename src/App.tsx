@@ -1,17 +1,8 @@
 import React from "react";
 import Card from "./components/Card/index";
 import NoteForm from "./components/NoteForm/index";
+import NotesPage from "./pages/NotesPage/index";
 function App() {
-  return (
-    <div>
-      <NoteForm />
-      <Card
-        title={"Title"}
-        children={
-          <p>Clique ou arraste o arquivo para esta área para fazer upload</p>
-        }
-      />
-    </div>
-  );
+  return <NotesPage />;
 }
 export default App;
