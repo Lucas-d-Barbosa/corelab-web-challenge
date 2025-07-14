@@ -5,20 +5,24 @@ import styles from "./NotesPage.module.scss";
 import { useState, useEffect, useMemo } from "react";
 import api from "../../services/api";
 import { notificationService } from "../../services/NotificationService";
+import ColorFilter from "../../components/ColorFilter";
 
 function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [notes, setNotes] = useState<INote[]>([]);
-  // CÓDIGO COM useMemo
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
       const title = note.title.toLowerCase();
       const content = note.content ? note.content.toLowerCase() : "";
       const search = searchTerm.toLowerCase();
-      return title.includes(search) || content.includes(search);
+      const matchesSearch = title.includes(search) || content.includes(search);
+      const matchesColor = selectedColor ? note.color === selectedColor : true;
+
+      return matchesSearch && matchesColor;
     });
-  }, [notes, searchTerm]);
+  }, [notes, searchTerm, selectedColor]);
 
   const favoriteNotes = useMemo(() => {
     return filteredNotes.filter((note) => note.isFavorite);
@@ -105,6 +109,10 @@ function NotesPage() {
       </header>
       <div className={styles.container__content}>
         <NoteForm onNoteAdd={handleNoteAdd} />
+        <ColorFilter
+          selectedColor={selectedColor}
+          onColorSelect={setSelectedColor}
+        />
         <div className={styles.notesAreas}>
           <h3>Favoritas</h3>
           <div className={styles.notesList}>
