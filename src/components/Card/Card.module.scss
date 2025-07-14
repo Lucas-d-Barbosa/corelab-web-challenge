@@ -11,6 +11,13 @@
   height: 27.375rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
 
   &:hover,
   &:focus,
@@ -32,12 +39,6 @@
       padding: 0.8rem;
       font-weight: 700;
       color: #4f4f4d;
-    }
-
-    button {
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
     }
   }
 
@@ -69,8 +70,21 @@
   }
 }
 
+.paletteContainer {
+  position: absolute;
+  bottom: -2rem;
+  left: 2rem;
+  z-index: 10;
+}
+
 @media (min-width: 380px) {
   .Card {
     width: 24.375rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .paletteContainer {
+    bottom: -4rem;
   }
 }
