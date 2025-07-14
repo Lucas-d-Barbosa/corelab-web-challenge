@@ -2,21 +2,31 @@ import { Card, Search } from "../../components";
 import NoteForm from "../../components/NoteForm";
 import { INote } from "../../types/notes.type";
 import styles from "./NotesPage.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import api from "../../services/api";
 import { notificationService } from "../../services/NotificationService";
 
 function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [notes, setNotes] = useState<INote[]>([]);
-  const filteredNotes = notes.filter((note) => {
-    const title = note.title.toLowerCase();
-    const content = note.content ? note.content.toLowerCase() : "";
-    const search = searchTerm.toLowerCase();
-    return title.includes(search) || content.includes(search);
-  });
-  const favoriteNotes = filteredNotes.filter((note) => note.isFavorite);
-  const otherNotes = filteredNotes.filter((note) => !note.isFavorite);
+  // CÓDIGO COM useMemo
+
+  const filteredNotes = useMemo(() => {
+    return notes.filter((note) => {
+      const title = note.title.toLowerCase();
+      const content = note.content ? note.content.toLowerCase() : "";
+      const search = searchTerm.toLowerCase();
+      return title.includes(search) || content.includes(search);
+    });
+  }, [notes, searchTerm]);
+
+  const favoriteNotes = useMemo(() => {
+    return filteredNotes.filter((note) => note.isFavorite);
+  }, [filteredNotes]);
+
+  const otherNotes = useMemo(() => {
+    return filteredNotes.filter((note) => !note.isFavorite);
+  }, [filteredNotes]);
   useEffect(() => {
     const fetchNotes = async () => {
       try {
